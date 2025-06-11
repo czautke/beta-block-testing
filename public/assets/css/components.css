@@ -1,0 +1,80 @@
+/* public/assets/css/components.css */
+
+/* Gym View Container Styling */
+#gym-view {
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+    display: block;
+}
+
+#gym-view svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Basic styles for SVG shapes (walls, areas like bathrooms) */
+.wall-section rect, .wall-section path,
+#bathrooms, #lockers, #lounge, #checkin {
+    fill: #e0e0e0;
+    stroke: black;
+    stroke-width: 2;
+}
+
+/* Specific wall section fills */
+#section1 { fill: lightblue; stroke: black; stroke-width: 1; }
+#section2 { fill: lightgreen; stroke: black; stroke-width: 1; }
+#section3 { fill: lightcoral; stroke: none; }
+#section4 { fill: lightsalmon; stroke: black; stroke-width: 1; }
+#section5 { fill: lightcyan; stroke: black; stroke-width: 1; }
+
+/* Styles for text labels within SVG */
+#gym-view text {
+    font-family: Arial, sans-serif;
+    fill: #333; /* Darker text for readability */
+}
+
+/* Hover effects for wall sections */
+.wall-section:hover rect,
+.wall-section:hover path {
+    fill: #c0c0c0; /* Lighter fill on hover */
+    cursor: pointer; /* Indicate it's clickable */
+    opacity: 0.8;
+}
+
+/* Specific hover for the colored sections */
+.wall-section:hover #section1 { fill: deepskyblue; }
+.wall-section:hover #section2 { fill: forestgreen; }
+.wall-section:hover #section3 { fill: indianred; }
+.wall-section:hover #section4 { fill: tomato; }
+.wall-section:hover #section5 { fill: aquamarine; }
+
+
+/* --- Placeholder page styles (temporary for /wall/ and /profile) --- */
+#main-content-area {
+    padding: 20px;
+    text-align: center;
+}
+
+#main-content-area h1 {
+    color: #0056b3;
+    margin-bottom: 20px;
+}
+
+#main-content-area button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+#main-content-area button:hover {
+    background-color: #0056b3;
+}

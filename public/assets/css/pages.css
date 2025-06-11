@@ -1,0 +1,424 @@
+/* public/assets/css/pages.css */
+
+/* Styles specific to wall1.html content (now WallPage) */
+.wall-container {
+    display: flex;
+    flex-direction: column; /* Stack header and routes vertically */
+    align-items: center; /* Center content horizontally */
+    width: 100%;
+    margin-top: 20px;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.wall-container h1 {
+    color: #0056b3;
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 2em;
+    text-align: center;
+}
+
+#routes-list {
+    width: 100%;
+    max-width: 600px; /* Limit width for readability */
+    padding: 20px;
+    box-sizing: border-box;
+    /* Consider adding a background or border for visual separation */
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.route-item {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    border: 1px solid #eee;
+}
+
+.route-item:last-child {
+    margin-bottom: 0;
+}
+
+.route-item input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+.route-item label {
+    font-size: 1.1em;
+    color: #555;
+    cursor: pointer;
+    flex-grow: 1; /* Allow label to take available space */
+}
+
+.route-item label:hover {
+    color: #007bff;
+}
+
+.route-item label a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s ease;
+}
+
+.route-item label a:hover {
+    color: #007bff;
+}
+
+/* Back button for pages */
+.back-button {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background-color: #6c757d; /* A neutral gray */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #5a6268;
+}
+
+
+/* public/assets/css/pages.css (continued) */
+
+/* Route Detail Container Styling */
+.route-detail-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center horizontally */
+    margin-top: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+    max-width: 800px; /* Limit width for readability */
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.route-detail-container h1 {
+    color: #0056b3;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* CSS for incomplete-complete button on route page */
+.completion-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.status-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Smooth transition for color changes */
+    border: 5px solid;
+    font-size: 1.2em; /* Make text a bit larger */
+    color: white; /* Default text color, overridden by complete/incomplete */
+}
+
+/* Incomplete state */
+.status-circle.incomplete {
+    background-color: lightgray;
+    border-color: darkgray;
+    color: darkgray; /* Text color for incomplete */
+}
+
+/* Complete state */
+.status-circle.complete {
+    background-color: lightgreen;
+    border-color: darkgreen;
+    color: darkgreen; /* Text color for complete */
+}
+
+
+/* public/assets/css/pages.css (continued) */
+
+/* --- Profile Page Specific Styles --- */
+
+.profile-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.profile-picture { /* If you add a profile picture later */
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #333;
+    margin-bottom: 20px;
+}
+
+.profile-container h1 {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.profile-bio {
+    font-size: 1.1em;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-details {
+    margin-top: 30px;
+    text-align: left;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+.profile-details h2 {
+    font-size: 1.8em;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.profile-details ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.profile-details ul li {
+    font-size: 1.1em;
+    color: #666;
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.profile-details ul li strong {
+    color: #333;
+}
+
+.profile-details ul li:before {
+    content: "•";
+    color: #007bff;
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}
+
+.profile-actions {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.profile-actions button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    margin: 0 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.profile-actions button:hover {
+    background-color: #0056b3;
+}
+
+/* Basic form styling for login/signup fields */
+.profile-details .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center form fields */
+}
+
+.profile-details .form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.profile-details .form-group input {
+    width: 80%; /* Adjust width of input fields */
+    max-width: 300px; /* Max width for readability */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+
+
+/* public/assets/css/pages.css (continued) */
+
+/* Admin Form Specific Styles */
+#admin-tools-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+#admin-tools-section h2 {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+#add-route-form .form-group {
+    margin-bottom: 15px;
+    text-align: left; /* Align labels to the left within their group */
+}
+
+#add-route-form label {
+    display: block; /* Make labels take full width for better stacking */
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+#add-route-form input[type="text"],
+#add-route-form input[type="date"],
+#add-route-form select {
+    width: 100%; /* Make inputs take full width of their container */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box; /* Include padding in element's total width */
+}
+
+#add-route-form .profile-actions {
+    margin-top: 20px;
+    border-top: none; /* Remove top border if it's already in the parent profile-actions */
+    padding-top: 0;
+    display: flex;
+    justify-content: center; /* Center the button */
+}
+
+
+/* public/assets/css/pages.css (continued) */
+
+/* Delete Button Styling */
+.delete-route-button {
+    background-color: #dc3545; /* Red color for delete */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    margin-left: auto; /* Push button to the right */
+    transition: background-color 0.2s ease;
+}
+
+.delete-route-button:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+/* Adjust route item spacing to accommodate button */
+.route-item {
+    justify-content: space-between; /* Space out content and button */
+    align-items: center;
+}
+
+.route-item label {
+    flex-grow: 1; /* Allow label to take available space before button */
+    margin-right: 10px; /* Space between label and button */
+}
+
+
+
+/* public/assets/css/pages.css (continued) */
+
+/* Reset Wall Form Styling (similar to Add Route form) */
+#reset-wall-form .form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+#reset-wall-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+#reset-wall-form input[type="text"],
+#reset-wall-form input[type="file"], /* If you add file upload later */
+#reset-wall-form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+#reset-wall-form .profile-actions {
+    margin-top: 20px;
+    border-top: none;
+    padding-top: 0;
+    display: flex;
+    justify-content: center;
+}
+
+
+
+/* public/assets/css/pages.css (continued) */
+
+/* Wall Version Toggle Styling */
+.wall-version-toggle {
+    margin-bottom: 20px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Space between label and select */
+}
+
+.wall-version-toggle label {
+    font-size: 1.1em;
+    color: #333;
+    font-weight: bold;
+}
+
+.wall-version-toggle select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+    background-color: #f9f9f9;
+    cursor: pointer;
+}
+
+.wall-version-toggle select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}

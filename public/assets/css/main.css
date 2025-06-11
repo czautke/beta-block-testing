@@ -1,0 +1,49 @@
+/* Basic body styling for overall page flow */
+body {
+    margin: 0; /* Remove default body margin */
+    font-family: Arial, sans-serif; /* A good default font */
+}
+
+/* Navbar styling */
+.navbar {
+    background-color: #333; /* Dark background for the nav bar */
+    overflow: hidden; /* Clear floats */
+    padding: 10px 0; /* Vertical padding */
+    text-align: center; /* Center the nav links */
+    /* Ensure it takes full width and doesn't float next to other elements */
+    width: 100%;
+    display: block; /* Important: Ensures it takes up its own line */
+}
+
+.navbar .logo {
+    float: left; /* Keep the logo on the left */
+    padding-left: 20px;
+}
+
+.navbar .logo img {
+    height: 80px; /* Adjust logo size as needed */
+}
+
+.navbar .nav-links {
+    float: right; /* Keep nav links on the right */
+    padding-right: 20px;
+}
+
+.navbar .nav-links a {
+    display: inline-block; /* Allows padding and margin */
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navbar .nav-links a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* Placeholder for future content area, to ensure it pushes below the navbar */
+#main-content-area {
+    padding: 20px; /* Add some padding to the content area */
+    text-align: center; /* Center placeholder text */
+}
