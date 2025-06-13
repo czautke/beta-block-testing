@@ -5,7 +5,7 @@ function Navbar() {
 
     navElement.innerHTML = `
         <div class="logo">
-            <a href="/"><img src="assets/images/beta-blocker-logo.png" alt="Logo"></a>
+            <a href="/#/"><img src="assets/images/beta-blocker-logo.png" alt="Logo"></a>
         </div>
         <div class="nav-links">
           <a href="/#/">Home</a>    <a href="/#/profile">Profile</a> </div>
