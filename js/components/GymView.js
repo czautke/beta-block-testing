@@ -1,5 +1,21 @@
 // src/components/GymView.js
 
+// Function to dynamically determine the base URL for routing
+// This makes the path robust for both local development and GitHub Pages.
+const getBaseUrl = () => {
+    // IMPORTANT: Replace 'beta-block-testing' with your actual repository name if it ever changes.
+    const repoName = '/beta-block-testing';
+    // Check if the current URL's path starts with the repository name.
+    // This handles cases where your site is hosted at username.github.io/repo-name/
+    if (window.location.pathname.startsWith(repoName)) {
+        return repoName;
+    }
+    // If not on GitHub Pages (e.g., local development or custom domain root), return an empty string.
+    return '';
+};
+
+const BASE_URL = getBaseUrl();
+
 function GymView() {
     const gymViewContainer = document.createElement('div');
     gymViewContainer.id = 'gym-view'; // Retain the ID for styling
@@ -57,9 +73,8 @@ function GymView() {
                 const wallId = gElement.dataset.wallId;
                 if (wallId) {
                     console.log(`Clicked on ${wallId}`);
-                    // In the next step, we'll implement actual routing here
-                    // For now, let's navigate to a placeholder page
-                    window.location.href = `/#/wall/${wallId}`; // Example: /wall/wall1
+                    // Modified line: Prepend the dynamically determined BASE_URL
+                    window.location.href = `${BASE_URL}/#/wall/${wallId}`;
                 }
             });
         });
