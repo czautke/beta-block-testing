@@ -24,7 +24,7 @@ function GymView() {
     // Note: I've removed the <a> tags around the text elements.
     // We'll handle clicks on the <g class="wall-section"> elements using JavaScript.
     gymViewContainer.innerHTML = `
-        <svg width="800" height="600">
+        <svg viewBox="0 0 800 600" style="display: block;">
             <g class="wall-section" data-wall-id="wall1">
                 <rect id="wall1" x="50" y="400" width="50" height="150" style="fill: #e0e0e0; stroke: black; stroke-width: 2;" />
                 <rect id="section1" x="55" y="405" width="40" height="140" style="fill: lightblue; stroke: black; stroke-width: 1;" />

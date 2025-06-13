@@ -47,3 +47,24 @@ body {
     padding: 20px; /* Add some padding to the content area */
     text-align: center; /* Center placeholder text */
 }
+
+
+
+/* Styles for screens larger than 768px (default behavior) */
+#gym-view svg {
+    display: block; /* Ensure it behaves like a block element */
+    width: 800px;   /* Set the fixed width */
+    height: 600px;  /* Set the fixed height */
+    margin: 0 auto; /* Center the SVG on larger screens */
+}
+
+/* Media query for screens 768px wide or narrower */
+@media (max-width: 768px) {
+    #gym-view svg {
+        width: 100%;   /* Make it fill 100% of its parent's width */
+        height: auto;  /* Maintain aspect ratio */
+        /* max-width: 800px; -- This is implicitly handled by the default style above,
+                                  but if you wanted a different max on mobile, you could add it.
+                                  For this request, keeping it simple means it will scale down from 800px. */
+    }
+}
