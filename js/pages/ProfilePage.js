@@ -1,9 +1,9 @@
 // public/js/pages/ProfilePage.js
 import { supabase } from '../services/supabaseClient.js';
 import { getCurrentUserId, getSupabaseUser, getProfileData } from '../services/authService.js';
-import { fetchUserClimbLogs, subscribeToRealtimeChanges } from '../services/climbLogService.js';
-// Removed: import { addRoute } from '../services/routeService.js';
-// Removed: import { resetWall, getCurrentWallReset } from '../services/wallResetService.js';
+import { fetchUserClimbLogs, subscribeToRealtimeChanges, getUserCompletedRoutesCountByGrade } from '../services/climbLogService.js'; // ADDED getUserCompletedRoutesCountByGrade
+import { getRoutesCountByGrade } from '../services/routeService.js'; // ADDED getRoutesCountByGrade
+// Removed admin-specific imports: addRoute, resetWall, getCurrentWallReset, updateWallResetDate (now in WallPage)
 
 function ProfilePage() {
     const profilePageContainer = document.createElement('div');
@@ -44,6 +44,13 @@ function ProfilePage() {
             </ul>
         </div>
 
+        <div id="climb-stats-section" class="profile-details" style="display: none;">
+            <h2>Climb Statistics by Grade</h2>
+            <div id="stats-content">
+                <p>Loading statistics...</p>
+            </div>
+        </div>
+
         `;
 
     // Event listener setup needs to happen *after* the elements are in the DOM
@@ -59,7 +66,10 @@ function ProfilePage() {
         const userEmailSpan = profilePageContainer.querySelector('#user-email');
         const userCreatedAtSpan = profilePageContainer.querySelector('#user-created-at');
         const userInfoDiv = profilePageContainer.querySelector('#user-info');
-        // Removed admin specific elements: adminToolsSection, addRouteForm, adminMessageDiv, etc.
+        
+        // NEW: Element references for Climb Statistics Section
+        const climbStatsSection = profilePageContainer.querySelector('#climb-stats-section');
+        const statsContentDiv = profilePageContainer.querySelector('#stats-content');
 
 
         // Function to update UI based on user session
@@ -75,7 +85,11 @@ function ProfilePage() {
                 userEmailSpan.textContent = user.email;
                 userCreatedAtSpan.textContent = new Date(user.created_at).toLocaleString();
 
-                // Removed admin check logic from here, as tools are no longer on this page
+                // Display climb statistics
+                climbStatsSection.style.display = 'block'; // Show stats section
+                statsContentDiv.innerHTML = '<p>Loading statistics...</p>'; // Show loading message
+
+                await renderClimbStatistics(); // Call to render stats
 
                 await fetchUserClimbLogs();
                 subscribeToRealtimeChanges();
@@ -85,7 +99,8 @@ function ProfilePage() {
                 authForm.style.display = 'block';
                 logoutButton.style.display = 'none';
                 userInfoDiv.style.display = 'none';
-                // Removed adminToolsSection.style.display = 'none';
+                climbStatsSection.style.display = 'none'; // Hide stats section if not logged in
+                statsContentDiv.innerHTML = ''; // Clear stats content
             }
         }
 
@@ -141,11 +156,65 @@ function ProfilePage() {
             }
         });
 
-        // Removed: Add route form event listener
-        // Removed: Reset wall form event listener
-        // Removed: updateAddRouteFormWallResetId function
+        // NEW: Function to render climb statistics
+        async function renderClimbStatistics() {
+            statsContentDiv.innerHTML = '<p>Loading statistics...</p>'; // Ensure loading state
 
-    }, 0);
+            const { data: totalRoutesByGrade, error: totalError } = await getRoutesCountByGrade();
+            const { data: completedRoutesByGrade, error: completedError } = await getUserCompletedRoutesCountByGrade();
+
+            if (totalError || completedError) {
+                statsContentDiv.innerHTML = `<p style="color: red;">Error loading statistics: ${totalError?.message || completedError?.message}</p>`;
+                console.error('Error loading climb statistics:', totalError, completedError);
+                return;
+            }
+
+            // Combine grades from both total and completed lists to ensure all grades are displayed
+            const grades = [...new Set([
+                ...totalRoutesByGrade.map(g => g.grade),
+                ...completedRoutesByGrade.map(g => g.grade)
+            ])].sort((a, b) => {
+                // Custom sort for grades like V0, V1, B1, B2 etc.
+                const parseGrade = (grade) => {
+                    const match = grade.match(/([A-Z])(\d+)/);
+                    if (match) {
+                        return { type: match[1], num: parseInt(match[2], 10) };
+                    }
+                    return { type: 'Z', num: 999 }; // Fallback for unexpected grades
+                };
+                const gradeA = parseGrade(a);
+                const gradeB = parseGrade(b);
+
+                if (gradeA.type === gradeB.type) {
+                    return gradeA.num - gradeB.num;
+                }
+                return gradeA.type.localeCompare(gradeB.type); // Sort by type (e.g., B before V)
+            });
+
+
+            if (grades.length === 0) {
+                statsContentDiv.innerHTML = '<p>No routes found yet or no climbs logged.</p>';
+                return;
+            }
+
+            const ul = document.createElement('ul');
+            grades.forEach(grade => {
+                // Find counts for the current grade
+                const totalEntry = totalRoutesByGrade.find(g => g.grade === grade);
+                const total = totalEntry ? parseInt(totalEntry.count, 10) : 0; // Ensure count is a number
+
+                const completedEntry = completedRoutesByGrade.find(g => g.grade === grade);
+                const completed = completedEntry ? parseInt(completedEntry.count, 10) : 0; // Ensure count is a number
+
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>Grade ${grade}:</strong> ${completed} / ${total} completed`;
+                ul.appendChild(li);
+            });
+            statsContentDiv.innerHTML = ''; // Clear loading message
+            statsContentDiv.appendChild(ul);
+        }
+
+    }, 0); // End of setTimeout
 
     return profilePageContainer;
 }

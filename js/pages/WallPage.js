@@ -2,7 +2,7 @@
 import { fetchWallRoutes, deleteRoute, addRoute } from '../services/routeService.js';
 import { fetchUserClimbLogs, updateClimbStatus } from '../services/climbLogService.js';
 import { getCurrentUserId } from '../services/authService.js';
-import { getWallResets, resetWall, getCurrentWallReset } from '../services/wallResetService.js';
+import { getWallResets, resetWall, getCurrentWallReset, updateWallResetDate } from '../services/wallResetService.js';
 
 // WallPage now accepts isAdmin as an argument
 function WallPage(wallId, isAdmin) {
@@ -76,6 +76,25 @@ function WallPage(wallId, isAdmin) {
                     </div>
                 </form>
             </div>
+
+            <div class="admin-tool-block" style="margin-top: 30px;">
+                <h3>Edit Wall Reset Date</h3>
+                <div id="edit-reset-message" style="color: green; margin-bottom: 10px;"></div>
+                <form id="edit-reset-form">
+                    <div class="form-group">
+                        <label for="edit-reset-selector">Select Reset:</label>
+                        <select id="edit-reset-selector" required>
+                            </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-reset-date">New Date:</label>
+                        <input type="date" id="edit-reset-date" required>
+                    </div>
+                    <div class="profile-actions">
+                        <button type="submit" id="update-reset-button">Update Date</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <div id="routes-list">
@@ -83,10 +102,12 @@ function WallPage(wallId, isAdmin) {
         </div>
     `;
 
-    // Element references
-    let wallResetSelector; // For viewing wall versions
-    let newRouteWallVersionSelector; // For selecting version when adding route
-    let newRouteDateSetInput; // For setting route date in add form
+    // Element references (declared as let, assigned below)
+    let wallResetSelector;
+    let newRouteWallVersionSelector;
+    let newRouteDateSetInput;
+    let editResetSelector;
+    let editResetDateInput;
 
     const routesListDiv = wallPageContainer.querySelector('#routes-list');
     const adminToolsSection = wallPageContainer.querySelector('#admin-tools-section');
@@ -98,6 +119,9 @@ function WallPage(wallId, isAdmin) {
     const resetWallDateInput = wallPageContainer.querySelector('#reset-wall-date');
     const resetWallPhotoUrlInput = wallPageContainer.querySelector('#reset-wall-photo-url');
     const resetWallMessageDiv = wallPageContainer.querySelector('#reset-wall-message');
+
+    const editResetForm = wallPageContainer.querySelector('#edit-reset-form');
+    const editResetMessageDiv = wallPageContainer.querySelector('#edit-reset-message');
 
 
     // Helper for general messages (e.g., login needed, errors during route fetching)
@@ -121,28 +145,58 @@ function WallPage(wallId, isAdmin) {
         setTimeout(() => { resetWallMessageDiv.textContent = ''; }, 5000);
     };
 
+    const displayEditResetMessage = (message, type = 'success') => {
+        editResetMessageDiv.textContent = message;
+        editResetMessageDiv.style.color = type === 'error' ? 'red' : 'green';
+        setTimeout(() => { editResetMessageDiv.textContent = ''; }, 5000);
+    };
+
+
+    // Helper to populate the Edit Reset Selector
+    const populateEditResetSelector = async (resets) => {
+        if (!resets || resets.length === 0) {
+            displayEditResetMessage(`No resets found for editing.`, 'error');
+            editResetSelector.innerHTML = '<option value="">No Resets Available</option>';
+            return;
+        }
+
+        editResetSelector.innerHTML = '<option value="">Select Reset to Edit</option>';
+        resets.forEach(reset => {
+            const option = document.createElement('option');
+            option.value = reset.id;
+            option.textContent = `${reset.is_current ? 'Current - ' : ''}Reset on ${new Date(reset.reset_date).toLocaleDateString()}`;
+            option.dataset.resetDate = new Date(reset.reset_date).toISOString().slice(0,10); // Store YYYY-MM-DD
+            editResetSelector.appendChild(option);
+        });
+        // Ensure default selection is cleared
+        editResetSelector.value = "";
+    };
+
 
     // Function to populate Wall Version selectors (both view and add route forms)
-    // selectedViewResetId: ID of the reset to be selected in the 'View Version' dropdown
-    // selectedAddRouteResetId: ID of the reset to be selected in the 'Add Route' dropdown
     const populateWallVersionSelectors = async (selectedViewResetId = null, selectedAddRouteResetId = null) => {
+        console.log("populateWallVersionSelectors: Fetching resets for wallId:", wallId);
         const { data: resets, error: resetsError } = await getWallResets(wallId);
+
         if (resetsError) {
+            console.error("populateWallVersionSelectors: Error fetching wall resets:", resetsError);
             displayStatusMessage(`Error fetching wall versions: ${resetsError.message}`, 'error');
             wallResetSelector.innerHTML = '<option value="">Error Loading Versions</option>';
             if (isAdmin) newRouteWallVersionSelector.innerHTML = '<option value="">Error Loading Versions</option>';
             return;
         }
 
+        console.log("populateWallVersionSelectors: Fetched resets data:", resets);
+
         // --- Populate View Version Selector ---
-        wallResetSelector.innerHTML = '<option value="">Select Version</option>'; // Always clear existing options
+        wallResetSelector.innerHTML = '<option value="">Select Version</option>';
         const currentReset = resets.find(r => r.is_current);
 
         if (currentReset) {
             const currentOption = document.createElement('option');
             currentOption.value = currentReset.id;
             currentOption.textContent = `Current (${new Date(currentReset.reset_date).toLocaleDateString()})`;
-            currentOption.dataset.isCurrent = "true"; // Mark as current for easy lookup
+            currentOption.dataset.isCurrent = "true";
             wallResetSelector.appendChild(currentOption);
         } else {
             displayStatusMessage(`No current reset found for Wall ${wallId.replace('wall','')}. Admin: Please reset the wall first!`, 'error');
@@ -160,41 +214,46 @@ function WallPage(wallId, isAdmin) {
             wallResetSelector.value = selectedViewResetId;
         } else if (currentReset) {
             wallResetSelector.value = currentReset.id; // Default to current if no specific selected
+        } else {
+            wallResetSelector.value = ""; // No current and no specific selected, default to empty
         }
 
 
         // --- Populate Add Route Wall Version Selector (for Admin) ---
         if (isAdmin) {
-            newRouteWallVersionSelector.innerHTML = '<option value="">Select Version</option>'; // Always clear
+            newRouteWallVersionSelector.innerHTML = '<option value="">Select Version</option>';
 
-            // Add "Current" reset option
             if (currentReset) {
                 const currentAddOption = document.createElement('option');
                 currentAddOption.value = currentReset.id;
                 currentAddOption.textContent = `Current (${new Date(currentReset.reset_date).toLocaleDateString()})`;
-                currentAddOption.dataset.resetDate = new Date(currentReset.reset_date).toISOString(); // Store date for default route date
+                currentAddOption.dataset.resetDate = new Date(currentReset.reset_date).toISOString();
                 newRouteWallVersionSelector.appendChild(currentAddOption);
             } else {
                 displayAddRouteMessage(`Warning: No active reset for Wall ${wallId.replace('wall','')}! New routes cannot be linked to a version until a reset.`, 'error');
             }
 
-            // Add historical options to add form (optional, but requested)
             resets.filter(r => !r.is_current).forEach(reset => {
                 const option = document.createElement('option');
                 option.value = reset.id;
                 option.textContent = `Reset on ${new Date(reset.reset_date).toLocaleDateString()}`;
-                option.dataset.resetDate = new Date(reset.reset_date).toISOString(); // Store date for default route date
+                option.dataset.resetDate = new Date(reset.reset_date).toISOString();
                 newRouteWallVersionSelector.appendChild(option);
             });
 
-            // Set the add route selector to the last selected or current default
             if (selectedAddRouteResetId) {
                 newRouteWallVersionSelector.value = selectedAddRouteResetId;
             } else if (currentReset) {
-                newRouteWallVersionSelector.value = currentReset.id; // Default to current
+                newRouteWallVersionSelector.value = currentReset.id;
+            } else {
+                newRouteWallVersionSelector.value = ""; // Default to empty if no current
             }
-            // Trigger change to set default date input when populated
             newRouteWallVersionSelector.dispatchEvent(new Event('change'));
+        }
+
+        // NEW: Also populate the Edit Reset Selector with the fetched data
+        if (isAdmin) {
+            await populateEditResetSelector(resets);
         }
     };
 
@@ -202,28 +261,46 @@ function WallPage(wallId, isAdmin) {
     const renderRoutes = async (targetResetId = null) => {
         routesListDiv.innerHTML = '<p>Loading routes...</p>';
 
-        // Ensure selectors and other elements are initialized once DOM is ready
-        // This block runs only once after innerHTML is set to attach listeners
-        if (!wallResetSelector) { // Check if initialized
-            wallResetSelector = wallPageContainer.querySelector('#wall-reset-selector');
-            newRouteWallVersionSelector = wallPageContainer.querySelector('#new-route-wall-version-selector');
-            newRouteDateSetInput = wallPageContainer.querySelector('#new-route-date-set');
+        // Ensure selectors and other elements are initialized (re-queried) on each render
+        // This is crucial because WallPage's innerHTML might be reset by App.js
+        wallResetSelector = wallPageContainer.querySelector('#wall-reset-selector');
+        newRouteWallVersionSelector = wallPageContainer.querySelector('#new-route-wall-version-selector');
+        newRouteDateSetInput = wallPageContainer.querySelector('#new-route-date-set');
+        editResetSelector = wallPageContainer.querySelector('#edit-reset-selector');
+        editResetDateInput = wallPageContainer.querySelector('#edit-reset-date'); // Ensure this is also queried
 
+        // Attach view selector event listener
+        wallResetSelector.removeEventListener('change', wallResetSelectorChangeListener); // Prevent duplicates
+        wallResetSelector.addEventListener('change', wallResetSelectorChangeListener);
+        function wallResetSelectorChangeListener(event) {
+            renderRoutes(event.target.value);
+        }
 
-            // Attach view selector event listener
-            wallResetSelector.addEventListener('change', (event) => {
-                renderRoutes(event.target.value); // Re-render routes based on selection
-            });
-
-            // Attach add route wall version selector listener (to set default route date)
-            if (isAdmin) {
-                newRouteWallVersionSelector.addEventListener('change', (e) => {
-                    const selectedOption = e.target.selectedOptions[0];
-                    const resetDateString = selectedOption ? selectedOption.dataset.resetDate : new Date().toISOString().slice(0,10);
-                    newRouteDateSetInput.value = resetDateString.slice(0,10); // Use slice(0,10) to get YYYY-MM-DD
-                });
+        // Attach add route wall version selector listener (to set default route date)
+        if (isAdmin && newRouteWallVersionSelector) {
+            newRouteWallVersionSelector.removeEventListener('change', newRouteWallVersionSelectorChangeListener);
+            newRouteWallVersionSelector.addEventListener('change', newRouteWallVersionSelectorChangeListener);
+            function newRouteWallVersionSelectorChangeListener(e) {
+                const selectedOption = e.target.selectedOptions[0];
+                const resetDateString = selectedOption ? selectedOption.dataset.resetDate : new Date().toISOString().slice(0,10);
+                newRouteDateSetInput.value = resetDateString.slice(0,10);
             }
         }
+
+        // Listen for selection change to pre-fill date in Edit Reset form
+        if (isAdmin && editResetSelector) {
+            editResetSelector.removeEventListener('change', editResetSelectorChangeListener);
+            editResetSelector.addEventListener('change', editResetSelectorChangeListener);
+            function editResetSelectorChangeListener(e) {
+                const selectedOption = e.target.selectedOptions[0];
+                if (selectedOption && selectedOption.value) {
+                    editResetDateInput.value = selectedOption.dataset.resetDate;
+                } else {
+                    editResetDateInput.value = '';
+                }
+            }
+        }
+
 
         // Always re-populate selectors to ensure they are up-to-date with latest resets
         await populateWallVersionSelectors(targetResetId, newRouteWallVersionSelector ? newRouteWallVersionSelector.value : null);
@@ -233,7 +310,7 @@ function WallPage(wallId, isAdmin) {
         const userClimbLogs = await fetchUserClimbLogs(currentUserId);
 
         // Fetch wall routes based on the targetResetId
-        const wallRoutes = await fetchWallRoutes(wallId, targetResetId); // UPDATED CALL
+        const wallRoutes = await fetchWallRoutes(wallId, targetResetId);
 
         if (wallRoutes.length === 0) {
             routesListDiv.innerHTML = '<p>No routes found for this wall version.</p>';
@@ -243,12 +320,9 @@ function WallPage(wallId, isAdmin) {
         routesListDiv.innerHTML = '';
 
         // Determine if the current view is historical or editable (current version)
-        // Find the current actual reset ID, not just what's selected in the dropdown
         const currentActualResetOption = wallResetSelector.querySelector('option[data-is-current="true"]');
         const currentActualResetId = currentActualResetOption ? currentActualResetOption.value : null;
 
-        // A view is historical if a targetResetId is specifically chosen AND it's not the current actual reset
-        // Or if no targetResetId is chosen (which implies current if current exists) but no current exists.
         const isHistoricalView = (targetResetId && targetResetId !== currentActualResetId) || (!targetResetId && !currentActualResetId);
 
 
@@ -420,6 +494,38 @@ function WallPage(wallId, isAdmin) {
                 // Re-populate selectors (as new 'current' reset exists) and re-render to new current wall
                 await populateWallVersionSelectors(); // Reset to default current view
                 renderRoutes(); // Re-render to show new current wall (no targetResetId means current)
+            }
+        });
+
+        // Add event listener for the Edit Wall Reset form submission
+        editResetForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const resetIdToEdit = editResetSelector.value;
+            const newDate = editResetDateInput.value; // YYYY-MM-DD format
+
+            if (!resetIdToEdit || !newDate) {
+                displayEditResetMessage("Please select a reset and a new date!", 'error');
+                return;
+            }
+
+            displayEditResetMessage("Updating reset date...", 'green');
+
+            // Format newDate to UTC midnight ISO string
+            const newDateUTC = newDate + 'T00:00:00.000Z';
+
+            const { data, error } = await updateWallResetDate(resetIdToEdit, newDateUTC);
+
+            if (error) {
+                displayEditResetMessage(`Error updating reset date: ${error.message}`, 'error');
+                console.error('Update Reset Date Error:', error);
+            } else {
+                displayEditResetMessage(`Reset date updated successfully!`, 'success');
+                editResetForm.reset();
+                // Re-populate all selectors and re-render routes
+                await populateWallVersionSelectors(); // Populate view selector and add route selector
+                // The populateEditResetSelector is now called inside populateWallVersionSelectors for consistency
+                renderRoutes(); // Re-render current view (no targetResetId means current)
             }
         });
 

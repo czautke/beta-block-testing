@@ -64,3 +64,24 @@ export async function resetWall(wallId, photoUrl, customResetDate = null) { // A
 
     return { data: newCurrentReset, error: null };
 }
+
+
+// public/js/services/wallResetService.js (continued)
+
+// Updates the reset_date of an existing wall reset
+export async function updateWallResetDate(resetId, newDate) {
+    console.log(`WallResetService: Updating reset ${resetId} to new date: ${newDate}`);
+    const { data, error } = await supabase
+        .from('wall_resets')
+        .update({ reset_date: newDate })
+        .eq('id', resetId)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('WallResetService: Error updating wall reset date:', error.message);
+        return { data: null, error };
+    }
+    console.log('WallResetService: Wall reset date updated successfully:', data);
+    return { data, error: null };
+}

@@ -422,3 +422,77 @@
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
 }
+
+
+/* public/assets/css/pages.css (continued) */
+
+/* Edit Reset Form Specific Styles (similar to other admin forms) */
+#edit-reset-form .form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+#edit-reset-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+#edit-reset-form input[type="date"],
+#edit-reset-form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+#edit-reset-form .profile-actions {
+    margin-top: 20px;
+    border-top: none;
+    padding-top: 0;
+    display: flex;
+    justify-content: center;
+}
+
+
+
+/* public/assets/css/pages.css (continued) */
+
+/* Climb Statistics Section */
+#climb-stats-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+#climb-stats-section h2 {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+#stats-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-width: 400px; /* Constrain width for readability */
+    margin-left: auto;
+    margin-right: auto; /* Center the list */
+    text-align: left;
+}
+
+#stats-content li {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+#stats-content li:last-child {
+    margin-bottom: 0;
+}

@@ -94,3 +94,28 @@ export async function deleteRoute(routeId) {
     console.log('RouteService: Route deleted successfully:', routeId);
     return { error: null };
 }
+
+
+
+// public/js/services/routeService.js (at the end of the file)
+
+// NEW: Fetches total count of active routes grouped by grade across the gym
+// public/js/services/routeService.js
+
+// ... (existing imports and other functions like fetchWallRoutes, fetchRouteDetails, addRoute, deleteRoute) ...
+
+// NEW: Fetches total count of active routes grouped by grade across the gym via RPC
+export async function getRoutesCountByGrade() {
+    console.log("RouteService: Fetching total active routes count by grade via RPC.");
+    const { data, error } = await supabase
+        .rpc('get_active_routes_count_by_grade'); // Call the RPC function by its name
+
+    if (error) {
+        console.error('RouteService: Error fetching total routes by grade via RPC:', error.message);
+        return { data: [], error }; // Return empty array on error
+    }
+
+    // The RPC returns data as an array of JSON objects: [{ grade: 'V0', count: 5 }, ...]
+    console.log('RouteService: Total active routes by grade (from RPC):', data);
+    return { data, error: null }; // Return the data as is
+}

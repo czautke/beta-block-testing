@@ -167,3 +167,53 @@ export function subscribeToRealtimeChanges() {
 //         console.log("Realtime channel unsubscribed on page unload.");
 //     }
 // });
+
+
+
+// public/js/services/climbLogService.js (at the end of the file)
+
+// Fetches count of user's completed routes grouped by grade, ONLY for currently active routes
+export async function getUserCompletedRoutesCountByGrade() {
+    const userId = getCurrentUserId();
+    if (!userId) {
+        console.log("ClimbLogService: No user logged in, cannot fetch completed routes by grade.");
+        return { data: [], error: { message: "User not logged in" } };
+    }
+
+    console.log(`ClimbLogService: Fetching completed routes by grade for user (only current active routes): ${userId}`);
+
+    // This query joins climb_logs -> routes -> wall_resets
+    // 'routes!inner(grade, wall_reset_id)' specifies an INNER JOIN to routes and selects grade and wall_reset_id.
+    // '.eq('routes.wall_resets.is_current', true)' implicitly joins to wall_resets
+    // and filters based on the is_current flag for the linked wall_reset.
+    const { data, error } = await supabase
+        .from('climb_logs')
+        .select('routes!inner(grade, wall_reset_id, wall_resets!inner(is_current)), is_complete') // Select grade, wall_reset_id from routes, and is_current from wall_resets
+        .eq('user_id', userId)
+        .eq('is_complete', true)
+        .not('routes.grade', 'is', null) // Exclude routes without a grade
+        .eq('routes.wall_resets.is_current', true); // Filter on the nested wall_resets property
+
+    if (error) {
+        console.error('ClimbLogService: Error fetching user completed routes by grade:', error.message);
+        return { data: [], error };
+    }
+
+    // Process the data to group by grade and count completed climbs
+    const completedByGrade = {};
+    data.forEach(log => {
+        // Access grade through the nested 'routes' object
+        const grade = log.routes?.grade;
+        if (grade) {
+            completedByGrade[grade] = (completedByGrade[grade] || 0) + 1;
+        }
+    });
+
+    const formattedData = Object.keys(completedByGrade).map(grade => ({
+        grade,
+        count: completedByGrade[grade]
+    }));
+
+    console.log('ClimbLogService: User completed routes by grade (filtered by current):', formattedData);
+    return { data: formattedData, error: null };
+}
